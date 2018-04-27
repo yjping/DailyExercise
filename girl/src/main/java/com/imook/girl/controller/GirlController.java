@@ -1,11 +1,15 @@
 package com.imook.girl.controller;
 
 import com.imook.girl.domain.Girl;
+import com.imook.girl.domain.Result;
 import com.imook.girl.repository.GirlRepository;
 import com.imook.girl.service.GirlService;
+import com.imook.girl.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -37,15 +41,27 @@ public class GirlController {
      *
      * @return
      */
-    @PostMapping(value = "/girls")
-    public Girl girlAdd(@RequestParam("cupSize") String cupSize,
-                        @RequestParam("age") Integer age) {
-        Girl girl = new Girl();
-        girl.setCupSize(cupSize);
-        girl.setAge(age);
+//    @PostMapping(value = "/girls")
+//    public Girl girlAdd(@RequestParam("cupSize") String cupSize,
+//                        @RequestParam("age") Integer age) {
+//        Girl girl = new Girl();
+//        girl.setCupSize(cupSize);
+//        girl.setAge(age);
+//
+//        return girlRepository.save(girl);
+//    }
 
-        return girlRepository.save(girl);
+    @PostMapping(value = "/girls")
+    public Result girlAdd(@Valid Girl girl, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            return ResultUtil.error(1,bindingResult.getFieldError().getDefaultMessage());
+        }
+        girl.setAge(girl.getAge());
+        girl.setCupSize(girl.getCupSize());
+
+        return ResultUtil.success(girlRepository.save(girl));
     }
+
 
     //查询一个女生
     @GetMapping(value = "/girls/{id}")
@@ -80,5 +96,10 @@ public class GirlController {
     @PostMapping(value = "/girls/two")
     public void girlTwo(){
         girlService.insertTwo();
+    }
+
+    @GetMapping(value = "girls/getAge/{id}")
+    public void getAge(@PathVariable("id") Integer id) throws Exception {
+        girlService.getAge(id);
     }
 }
